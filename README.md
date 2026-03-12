@@ -12,7 +12,10 @@ We present Structural Constraint Integration in the GENerative model (SCIGEN), a
   <img src="assets/figure1.png" width="600">
 </p>
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/tutorial_colab.ipynb)
+
 ## Table of Contents
+- [Colab Tutorial](#colab-tutorial)
 - [Dependencies](#dependencies)
 - [Config Setting](#config-setting)
 - [Training](#training)
@@ -22,6 +25,16 @@ We present Structural Constraint Integration in the GENerative model (SCIGEN), a
 - [Make Movies of Material Generation Trajectories](#make-movies-of-material-generation-trajectories)
 - [Create Your Own Structural Constraint](#create-your-own-structural-constraint)
 - [References](#references)
+
+---
+
+## Colab Tutorial
+
+Run SCIGEN directly in your browser with Google Colab — no local setup required:
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/tutorial_colab.ipynb)
+
+The tutorial walks through loading a pretrained model, generating crystal structures with structural constraints (kagome, honeycomb, triangular, etc.), and exporting the results as CIF files.
 
 ---
 
