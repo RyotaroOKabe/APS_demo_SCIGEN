@@ -1,5 +1,32 @@
 # SCIGEN — Claude Code Project Guide
 
+## Progress Reporting (MANDATORY)
+
+After completing any meaningful unit of work (e.g., creating/modifying files, fixing bugs, adding features, resolving issues), **write a progress report** to `docs/progress/`.
+
+- **Filename format:** `yyyy-mm-dd_NN.md` where `NN` is a zero-padded sequence number for that day (e.g., `2026-03-12_01.md`, `2026-03-12_02.md`). Check existing files to determine the next sequence number.
+- **Content format:**
+  ```markdown
+  # Progress Report: <short title>
+  **Date:** yyyy-mm-dd
+  **Session:** NN
+
+  ## What was done
+  - Bullet points summarizing completed work
+
+  ## Files changed
+  - `path/to/file` — what changed and why
+
+  ## Decisions made
+  - Key design or implementation decisions (if any)
+
+  ## Open issues / next steps
+  - What remains to be done or followed up on
+  ```
+- Write the report **before** responding to the user with a final summary.
+- One report per meaningful progress milestone. If a single user request involves multiple distinct milestones, write multiple reports.
+- Do NOT skip this step. It is required for every conversation that modifies the project.
+
 ## Project Overview
 
 SCIGEN (Structural Constraint Integration in GENerative model) is a diffusion-based generative model for crystal structure discovery with geometric constraints (kagome, honeycomb, triangular, etc.). Published in Nature Materials 2025.
