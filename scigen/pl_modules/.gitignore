@@ -1,0 +1,36 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+archive/
+figures/
+slurm/
+conf_sg/
+save_tmp/
+dir.py
+multiple_gen.py
+multiple_gen2.py
+multiple_gen3.py
+multiple_gen4.py
+multiple_gen5.py
+multiple_gen6.py
+multiple_gen7.py
+multiple_gen8.py
+multiple_stab.py
+*.sh
+env_sub_torch201-39.yml
+env_sub_torch23-311.yml
+
+.env
+
+# data 
+data/*/*.pt
+data*/*/*.pt
+
+# home
+config_scigen.py
+
+# screening 
+screening/
+diffusion_w_type_mt.py
+diffusion.py
+diffusion_w_type_stop.py
+diffusion_w_type_stop_separate.py
