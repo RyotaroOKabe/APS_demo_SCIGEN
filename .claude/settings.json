@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python --version)",
+      "Bash(pip list)",
+      "Bash(pip install *)",
+      "Bash(pip freeze*)",
+      "Bash(ls *)",
+      "Bash(pwd)",
+      "Bash(git *)",
+      "Bash(mkdir *)",
+      "Bash(cp *)",
+      "Bash(mv *)",
+      "Bash(wget *)",
+      "Bash(unzip *)",
+      "Bash(python -c *)",
+      "Bash(python -m *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(wc *)",
+      "Bash(diff *)",
+      "Bash(jupyter *)",
+      "Bash(cat *)"
+    ],
+    "deny": [
+      "Bash(rm -rf /)",
+      "Bash(rm -rf ~)",
+      "Bash(rm -rf .git)",
+      "Bash(git push --force*)",
+      "Bash(git reset --hard*)",
+      "Bash(: > *)",
+      "Bash(curl * | sh)",
+      "Bash(curl * | bash)"
+    ]
+  }
+}
