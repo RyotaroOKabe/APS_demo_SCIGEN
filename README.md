@@ -15,7 +15,8 @@ We present Structural Constraint Integration in the GENerative model (SCIGEN), a
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/tutorial_colab.ipynb)
 
 ## Table of Contents
-- [Colab Tutorial](#colab-tutorial)
+- [APS Tutorial Notebooks](#aps-tutorial-notebooks)
+- [Quick Start (Standalone)](#colab-tutorial)
 - [Dependencies](#dependencies)
 - [Config Setting](#config-setting)
 - [Training](#training)
@@ -28,13 +29,30 @@ We present Structural Constraint Integration in the GENerative model (SCIGEN), a
 
 ---
 
+## APS Tutorial Notebooks
+
+A series of 6 notebooks for the APS Tutorial **T4: Generative AI for Physics — From Models to Materials**. Work through them in order, or jump to any topic:
+
+| # | Topic | Colab Link |
+|---|-------|------------|
+| 00 | **Setup** — GPU, dependencies, model download | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/00_setup.ipynb) |
+| 01 | **Crystal Structures** — pymatgen, CIF, visualization | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/01_crystal_structures.ipynb) |
+| 02 | **Materials Project** — data access, training data | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/02_materials_project.ipynb) |
+| 03 | **Generative AI Concepts** — diffusion models for physicists | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/03_generative_concepts.ipynb) |
+| 04 | **MLIP Evaluation** — CHGNet for structure screening | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/04_mlip_evaluation.ipynb) |
+| 05 | **SCIGEN Generation** — constrained crystal generation (capstone) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/05_scigen_generation.ipynb) |
+
+> **Start with Notebook 00** to install everything, then proceed in order. Each notebook builds on the previous ones, using kagome-lattice materials as a running example.
+
+---
+
 ## Colab Tutorial
 
-Run SCIGEN directly in your browser with Google Colab — no local setup required:
+Standalone quick-start notebook — run SCIGEN directly in your browser with no local setup:
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/tutorial_colab.ipynb)
 
-The tutorial walks through loading a pretrained model, generating crystal structures with structural constraints (kagome, honeycomb, triangular, etc.), and exporting the results as CIF files.
+This notebook walks through loading a pretrained model, generating crystal structures with structural constraints (kagome, honeycomb, triangular, etc.), and exporting the results as CIF files.
 
 ---
 
