@@ -1,10 +1,10 @@
-# SCIGEN Colab Tutorial - Minimal Dependencies for Generation
+# SCIGEN Colab Tutorial — Dependencies for all tutorial notebooks (00–05)
 #
 # PyTorch + CUDA are provided by the Colab runtime.
-# torch-scatter, torch-sparse, torch-cluster must be installed from the PyG
-# wheel index matching your torch+CUDA version. See the tutorial notebook
-# install cell for the correct command.
+# torch-scatter, torch-sparse, torch-cluster must be installed separately
+# from the PyG wheel index matching your torch+CUDA version — see setup cell.
 
+# Core SCIGEN dependencies (generation)
 torch-geometric>=2.3.0
 lightning>=2.0.0
 hydra-core>=1.2.0,<1.4
@@ -16,3 +16,8 @@ einops
 p-tqdm
 pathos
 pyxtal
+
+# Tutorial extras (notebooks 02, 04)
+mp-api
+chgnet
+scipy
