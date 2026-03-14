@@ -21,3 +21,8 @@ pyxtal
 mp-api
 chgnet
 scipy
+
+# Visualization (3D crystal rendering, plots, animations)
+matplotlib
+pyvista
+Pillow
