@@ -1,5 +1,27 @@
 # SCIGEN — Claude Code Project Guide
 
+## Git Workflow (MANDATORY)
+
+**Never push directly to `main`.** Always use a feature branch:
+
+1. **Create or switch to a feature branch** before committing (e.g., `dev`, `fix/notebook-bug`, `feat/new-section`). If a branch named `dev` already exists, use it. Otherwise create one.
+2. **Commit and push** to the feature branch.
+3. **Wait for user confirmation** — the user will review the changes and say "merge" or request fixes.
+4. **Only merge to `main`** after the user explicitly confirms. Use `git checkout main && git merge <branch> && git push`.
+
+## Slide Deck Sync
+
+When modifying Colab notebooks in `notebooks/`, also update the corresponding slide deck in `docs/slides/`:
+
+- `notebooks/00_setup.ipynb` ↔ `docs/slides/00_setup.md`
+- `notebooks/01_crystal_structures.ipynb` ↔ `docs/slides/01_crystal_structures.md`
+- `notebooks/02_generative_concepts.ipynb` ↔ `docs/slides/02_generative_concepts.md`
+- `notebooks/03_diffusion_materials.ipynb` ↔ `docs/slides/03_diffusion_materials.md`
+- `notebooks/04_scigen_generation.ipynb` ↔ `docs/slides/04_scigen_generation.md`
+- `notebooks/05_mlip_evaluation.ipynb` ↔ `docs/slides/05_mlip_evaluation.md`
+
+**Skip the slide update** if the notebook change is purely cosmetic (typo fix, variable rename, bug fix with no conceptual change). Update the slides if sections are added/removed/reordered or key content changes.
+
 ## Progress Reporting (MANDATORY)
 
 After completing any meaningful unit of work (e.g., creating/modifying files, fixing bugs, adding features, resolving issues), **write a progress report** to `docs/progress/`.
