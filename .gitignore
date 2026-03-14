@@ -59,3 +59,5 @@ screen_mul_ro.py
 # screening 
 screening/
 
+!models/mnist_ddpm/
+!models/mnist_ddpm/*.pth
