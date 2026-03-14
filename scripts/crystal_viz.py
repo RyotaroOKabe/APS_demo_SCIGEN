@@ -290,22 +290,20 @@ def _setup_camera(pl, positions, azimuth, elevation, zoom_padding):
     center = positions.mean(axis=0)
     bbox_min, bbox_max = positions.min(axis=0), positions.max(axis=0)
     max_dim = float(np.max(bbox_max - bbox_min))
-    distance = max_dim * 1.8
+    # Place camera far enough to see the full structure with margin
+    distance = max_dim * 2.5
     az_r, el_r = radians(azimuth), radians(elevation)
     cam_pos = center + np.array([
         distance * cos(el_r) * cos(az_r),
         distance * cos(el_r) * sin(az_r),
         distance * sin(el_r),
     ])
-    pl.reset_camera(bounds=(bbox_min[0], bbox_max[0],
-                            bbox_min[1], bbox_max[1],
-                            bbox_min[2], bbox_max[2]))
-    auto_dist = float(np.linalg.norm(np.array(pl.camera.position) - center))
     pl.camera.position = cam_pos
     pl.camera.focal_point = center
     pl.camera.up = (0, 1, 0) if elevation >= 60.0 else (0, 0, 1)
-    new_dist = float(np.linalg.norm(cam_pos - center))
-    pl.camera.zoom((auto_dist / new_dist) * zoom_padding)
+    # Reset camera to fit all actors, then apply user zoom
+    pl.reset_camera()
+    pl.camera.zoom(zoom_padding)
 
 
 def _setup_lighting(pl, positions, preset="standard", intensity=1.0):
@@ -344,7 +342,7 @@ def plot_crystal(
     title: Optional[str] = None,
     azimuth: float = 30.0,
     elevation: float = 75.0,
-    zoom_padding: float = 0.45,
+    zoom_padding: float = 1.0,
     opacity: float = 1.0,
     lighting_preset: str = "standard",
     window_size: Tuple[int, int] = (800, 600),
@@ -485,7 +483,7 @@ def plot_crystal_interactive(
     atom_scale_default: float = 0.3,
     azimuth_default: float = 30.0,
     elevation_default: float = 75.0,
-    zoom_default: float = 0.45,
+    zoom_default: float = 1.0,
     window_size: Tuple[int, int] = (600, 500),
     **kwargs,
 ):
