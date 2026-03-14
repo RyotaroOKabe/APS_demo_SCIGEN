@@ -31,7 +31,7 @@ We present Structural Constraint Integration in the GENerative model (SCIGEN), a
 
 ## APS Tutorial Notebooks
 
-A series of 5 notebooks for the APS Tutorial **T4: Generative AI for Physics — From Models to Materials**. Work through them in order, or jump to any topic:
+A series of 6 notebooks for the APS Tutorial **T4: Generative AI for Physics — From Models to Materials**. Work through them in order, or jump to any topic:
 
 | # | Topic | Colab Link |
 |---|-------|------------|
@@ -39,7 +39,8 @@ A series of 5 notebooks for the APS Tutorial **T4: Generative AI for Physics —
 | 01 | **Crystal Structures & Materials Data** — pymatgen, visualization, MP-20 dataset, tight-binding | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/01_crystal_structures.ipynb) |
 | 02 | **Generative AI Concepts** — diffusion models for physicists | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/02_generative_concepts.ipynb) |
 | 03 | **MLIP Evaluation** — CHGNet for structure screening | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/03_mlip_evaluation.ipynb) |
-| 04 | **SCIGEN Generation** — constrained crystal generation (capstone) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/04_scigen_generation.ipynb) |
+| 04 | **DiffCSP** — crystal diffusion fundamentals, noise & denoising | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/04_diffcsp.ipynb) |
+| 05 | **SCIGEN Generation** — constrained crystal generation (capstone) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/05_scigen_generation.ipynb) |
 
 > **Start with Notebook 00** to install everything, then proceed in order. Each notebook builds on the previous ones, using kagome-lattice materials as a running example.
 
