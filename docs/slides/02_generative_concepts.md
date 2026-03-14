@@ -1,4 +1,4 @@
-# Notebook 02: Generative AI Concepts
+# Notebook 02: Generative AI Concepts — From DDPM to Materials
 
 ---
 
@@ -15,10 +15,10 @@
 ## Diffusion models: the key idea
 
 **Forward process (heating):**
-Clean crystal --> add noise --> ... --> pure noise
+Clean data --> add noise --> ... --> pure noise
 
-**Reverse process (crystallization):**
-Pure noise --> remove noise --> ... --> new crystal
+**Reverse process (generation):**
+Pure noise --> remove noise --> ... --> new data
 
 *Physics analogy: melting a crystal, then controlled re-crystallization*
 
@@ -27,50 +27,78 @@ Pure noise --> remove noise --> ... --> new crystal
 ## DDPM equations
 
 **Forward** (add noise at step t):
-
 $$q(x_t | x_0) = N(sqrt(alpha_bar_t) * x_0, (1 - alpha_bar_t) * I)$$
 
-**Reverse** (neural network learns to denoise):
-
-$$p(x_{t-1} | x_t) = N(mu_theta(x_t, t), sigma_t^2 * I)$$
-
 **Training loss** (predict the noise):
-
 $$L = E[ || epsilon - epsilon_theta(x_t, t) ||^2 ]$$
 
----
-
-## The score function
-
-The network learns: "which direction should I move each atom
-to make this look more like a real crystal?"
-
-$$s_theta(x_t, t) = nabla_x log p(x_t)$$
-
-This is the gradient of the log-probability — it points
-toward high-density regions (valid crystal structures).
+**Reverse** (denoise):
+$$x_{t-1} = (1/sqrt(alpha_t)) * (x_t - noise_pred * beta_t/sqrt(1-alpha_bar_t)) + sigma_t * z$$
 
 ---
 
-## Conditional generation
+## Classifier-free guidance
 
-| Type | Example | Method |
-|------|---------|--------|
-| Property-guided | "Band gap > 2 eV" | Classifier guidance |
-| Composition | "Must contain Mn, O" | Fix atom types |
-| **Structure** | **"Kagome sublattice"** | **Inpainting** |
+Train the model to work both WITH and WITHOUT class labels:
+- Randomly drop the label during training (with probability p=0.1)
+- At generation time, interpolate between conditional and unconditional predictions:
 
-SCIGEN uses **inpainting**: fix the constrained atoms,
-let the model generate everything else.
+$$eps = (1 + w) * eps_conditional - w * eps_unconditional$$
+
+- w = 0: unconditional
+- w = 2: strong class guidance
+
+---
+
+## Hands-on: DDPM on MNIST
+
+We train a real diffusion model on handwritten digits:
+- **UNet** with time + class embedding (~1.7M parameters)
+- **10 epochs** on MNIST (~5 min on T4 GPU)
+- **Conditional generation**: specify which digit to generate
+- **Guidance strength**: control the class-specificity
+
+Demo:
+1. Train the model (watch loss decrease)
+2. Generate all 10 digit classes
+3. Visualize the denoising trajectory (noise -> digit)
+
+---
+
+## From images to crystals
+
+| MNIST (images) | Materials (crystals) |
+|----------------|---------------------|
+| Pixel values [0, 1] | Fractional coordinates [0, 1) |
+| 28x28 grid | Variable number of atoms |
+| UNet predicts noise | GNN (CSPNet) predicts noise |
+| Class label (0-9) | Structural constraint (kagome, ...) |
+| Classifier-free guidance | Inpainting with fixed positions |
+
+Same DDPM core — different representations and network architectures.
+
+---
+
+## Crystal generative models
+
+| Model | Year | Key feature |
+|-------|------|-------------|
+| CDVAE | 2022 | First crystal generative model (VAE) |
+| DiffCSP | 2023 | Diffusion for crystal structure prediction |
+| SCIGEN | 2025 | Structural constraints via inpainting |
+| MatterGen | 2025 | Property-guided generation |
+
+All build on the DDPM framework we just trained on MNIST.
 
 ---
 
 ## What we'll do in this notebook
 
-1. Visualize forward process (2D toy example)
-2. Visualize reverse process (denoising)
-3. See the noise schedule (beta_t, alpha_bar_t)
-4. Understand the inpainting approach
-5. Survey of crystal generative models (CDVAE, DiffCSP, SCIGEN, MatterGen)
+1. Review DDPM theory (forward/reverse process, equations)
+2. 2D toy example (ring of Gaussians)
+3. **Train a DDPM on MNIST** (~5 min)
+4. **Generate digits** with different guidance strengths
+5. **Visualize denoising trajectory** (noise -> digit)
+6. Connect to materials generation
 
 ---
