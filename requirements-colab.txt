@@ -22,6 +22,9 @@ mp-api
 chgnet
 scipy
 
+# Tight-binding band structures (notebook 01)
+pythtb
+
 # Visualization (3D crystal rendering, plots, animations)
 matplotlib
 pyvista

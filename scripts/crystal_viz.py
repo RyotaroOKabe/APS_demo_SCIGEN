@@ -12,6 +12,9 @@ plot_crystal(struct, **kwargs) → PIL.Image
 plot_crystal_grid(structures, titles=None, **kwargs) → PIL.Image
     Render a grid of structures side-by-side.
 
+plot_crystal_interactive(struct, **kwargs) → ipywidgets.VBox
+    Interactive viewer with sliders for atom_scale, elevation, azimuth, zoom.
+
 Public API (CLI / batch)
 ------------------------
 visualize_crystal(cif_path, **kwargs)
@@ -472,6 +475,140 @@ def plot_crystal_grid(
         pass
 
     return grid
+
+
+def plot_crystal_interactive(
+    struct,
+    *,
+    supercell: Tuple[int, int, int] = (1, 1, 1),
+    atom_scale_range: Tuple[float, float, float] = (0.1, 1.0, 0.05),
+    atom_scale_default: float = 0.3,
+    azimuth_default: float = 30.0,
+    elevation_default: float = 75.0,
+    zoom_default: float = 0.45,
+    window_size: Tuple[int, int] = (600, 500),
+    **kwargs,
+):
+    """Interactive crystal viewer using ipywidgets sliders (Colab-friendly).
+
+    Re-renders the structure via :func:`plot_crystal` each time a slider
+    changes, displaying the resulting PIL Image in a widgets.Output area.
+    This avoids the trame/panel backend entirely, which is unreliable in
+    Google Colab.
+
+    Parameters
+    ----------
+    struct : pymatgen.core.Structure
+        The structure to visualize.
+    supercell : (na, nb, nc)
+        Initial supercell replication (overridden by the dropdown).
+    atom_scale_range : (min, max, step)
+        Range for the atom-scale slider.
+    atom_scale_default : float
+        Initial atom-scale value.
+    azimuth_default, elevation_default, zoom_default : float
+        Initial camera parameters.
+    window_size : (w, h)
+        Pixel size of each rendered image.
+    **kwargs
+        Extra keyword arguments forwarded to :func:`plot_crystal`.
+
+    Returns
+    -------
+    ipywidgets.VBox
+        Widget container that notebooks can display with ``display(vbox)``.
+        If ipywidgets is unavailable, falls back to a static
+        :func:`plot_crystal` call and returns the PIL Image instead.
+    """
+    try:
+        import ipywidgets as widgets
+        from IPython.display import display as ipy_display, clear_output
+    except ImportError:
+        print("[crystal_viz] ipywidgets not available — falling back to static render.")
+        return plot_crystal(struct, supercell=supercell,
+                            atom_scale=atom_scale_default,
+                            azimuth=azimuth_default,
+                            elevation=elevation_default,
+                            zoom_padding=zoom_default,
+                            window_size=window_size, **kwargs)
+
+    # --- slider widgets ---------------------------------------------------
+    sc_min, sc_max, sc_step = atom_scale_range
+    w_atom_scale = widgets.FloatSlider(
+        value=atom_scale_default, min=sc_min, max=sc_max, step=sc_step,
+        description="Atom scale", continuous_update=False,
+        style={"description_width": "90px"},
+    )
+    w_elevation = widgets.FloatSlider(
+        value=elevation_default, min=0.0, max=90.0, step=1.0,
+        description="Elevation", continuous_update=False,
+        style={"description_width": "90px"},
+    )
+    w_azimuth = widgets.FloatSlider(
+        value=azimuth_default, min=0.0, max=360.0, step=1.0,
+        description="Azimuth", continuous_update=False,
+        style={"description_width": "90px"},
+    )
+    w_zoom = widgets.FloatSlider(
+        value=zoom_default, min=0.1, max=1.0, step=0.05,
+        description="Zoom", continuous_update=False,
+        style={"description_width": "90px"},
+    )
+
+    supercell_options = [
+        ("1x1x1", (1, 1, 1)),
+        ("2x2x1", (2, 2, 1)),
+        ("2x2x2", (2, 2, 2)),
+        ("3x3x1", (3, 3, 1)),
+    ]
+    # Find the initial value that matches the supercell argument
+    sc_init = supercell if supercell in [v for _, v in supercell_options] else (1, 1, 1)
+    w_supercell = widgets.Dropdown(
+        options=supercell_options, value=sc_init,
+        description="Supercell",
+        style={"description_width": "90px"},
+    )
+
+    out = widgets.Output()
+
+    def _render(**_ignore):
+        with out:
+            clear_output(wait=True)
+            try:
+                img = plot_crystal(
+                    struct,
+                    supercell=w_supercell.value,
+                    atom_scale=w_atom_scale.value,
+                    elevation=w_elevation.value,
+                    azimuth=w_azimuth.value,
+                    zoom_padding=w_zoom.value,
+                    window_size=window_size,
+                    display=False,
+                    **kwargs,
+                )
+                ipy_display(img)
+            except Exception as exc:
+                print(f"Render error: {exc}")
+
+    # Wire up interactive output
+    interactive_out = widgets.interactive_output(
+        _render,
+        {
+            "atom_scale": w_atom_scale,
+            "elevation": w_elevation,
+            "azimuth": w_azimuth,
+            "zoom": w_zoom,
+            "supercell": w_supercell,
+        },
+    )
+
+    controls = widgets.VBox([w_atom_scale, w_elevation, w_azimuth, w_zoom, w_supercell])
+    container = widgets.VBox([controls, out])
+
+    # Initial render
+    _render()
+
+    return container
 
 
 # ===========================================================================
