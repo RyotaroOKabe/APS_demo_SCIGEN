@@ -17,6 +17,57 @@ The entire infinite crystal is the unit cell repeated in all directions.
 
 ---
 
+## The three components: (L, X, A)
+
+Every crystal in a computer is fully defined by three components:
+
+| Component | Symbol | Description |
+|---|---|---|
+| **Lattice** | **L** | Periodic box: lengths (a, b, c) + angles (α, β, γ) |
+| **Fractional coordinates** | **X** | Atom positions in [0, 1) |
+| **Atom types** | **A** | Chemical species at each site |
+
+Crystal = (**L**, **X**, **A**) — this is exactly what SCIGEN denoises.
+
+---
+
+## Conventional vs. primitive unit cell
+
+The **same crystal** can be described by different unit cells:
+
+- **Conventional:** standard cell showing full symmetry (NaCl → 8 atoms, cubic)
+- **Primitive:** smallest cell that tiles space (NaCl → 2 atoms, rhombohedral)
+
+Both produce the same infinite crystal when repeated.
+
+---
+
+## Graph representation of crystals
+
+Neural networks see crystals as **graphs**:
+
+| Graph element | Crystal meaning |
+|---|---|
+| **Node** | Atom (features: element, position) |
+| **Edge** | Neighbor bond within cutoff radius |
+
+Key: edges include **periodic boundary** connections → graphs naturally encode translational symmetry.
+
+---
+
+## Key invariances
+
+| Invariance | Meaning |
+|---|---|
+| **Permutation** | Reordering atoms doesn't change the crystal |
+| **Periodic translation** | Shifting by a lattice vector = same crystal |
+| **Unit cell choice** | Conventional vs. primitive = same crystal |
+| **Rotation** | Rotating the crystal doesn't change properties |
+
+SCIGEN's architecture respects all four.
+
+---
+
 ## Fractional vs Cartesian coordinates
 
 | | Fractional | Cartesian |
@@ -88,10 +139,11 @@ regardless of hopping strength.
 ## What we'll do in this notebook
 
 1. Build NaCl from scratch with pymatgen
-2. Load and explore the MP-20 dataset
-3. Visualize structures (matplotlib + PyVista)
-4. Build a kagome lattice
-5. Compute tight-binding band structures
-6. Space group analysis + simulated XRD
+2. Understand the (L, X, A) representation
+3. Compare conventional vs. primitive unit cells
+4. Build supercells, crystal graphs, and explore invariances
+5. Load and explore the MP-20 dataset
+6. Build a kagome lattice + tight-binding band structures
+7. Space group analysis + simulated XRD
 
 ---
