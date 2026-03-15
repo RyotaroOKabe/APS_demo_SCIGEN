@@ -92,13 +92,13 @@ e_hull = pd.get_e_above_hull(entry)
 ## Screening SCIGEN-generated materials
 
 Apply CHGNet to **24,743 SCIGEN-generated structures**:
-1. Download DFT-validated structures from Figshare
-2. Predict energy/forces across all constraint types
-3. Relax structures, measure displacement
-4. Filter by stability criteria
+1. Predict energy, forces, **magnetic moments** across constraint types
+2. Compare energy/volume distributions with MP-20 training data
+3. Relax structures, visualize before/after displacement
+4. Compute **E_hull** for generated materials
+5. Rank **top candidates** by stability + magnetic properties
 
-**Result:** Rapid identification of stable candidates across
-kagome, honeycomb, triangular, and other lattice geometries.
+**Result:** Rapid identification of stable magnetic candidates.
 
 ---
 
@@ -121,10 +121,11 @@ MLIP screening reduced DFT workload by ~400x.
 
 1. Load CHGNet pretrained model
 2. Predict energy/forces for a test structure
-3. **Relax a perturbed crystal** (animated trajectory with forces)
+3. **Relax a perturbed crystal** (animated trajectory)
 4. Compare CHGNet vs DFT (parity plot, MAE)
-5. Estimate **E_hull** (thermodynamic stability)
-6. **Screen SCIGEN-generated materials** with CHGNet
-7. Visualize the full Generate -> Screen -> Validate pipeline
+5. **Phonon DOS** (dynamic stability check)
+6. **E_hull** (thermodynamic stability)
+7. **Screen SCIGEN materials** (energy, magnets, relaxation, E_hull)
+8. **Top candidates** ranked by stability + magnetic properties
 
 ---
