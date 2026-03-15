@@ -1,329 +1,100 @@
 
-# Structural Constraint Integration in a Generative Model for the Discovery of Quantum Materials
-We present Structural Constraint Integration in the GENerative model (SCIGEN), a framework that integrates structural constraints, such as honeycomb or kagome motifs, into generative diffusion models, enabling the generation of materials with targeted geometric patterns. 
+# APS Tutorial T4: Generative AI for Physics — From Models to Materials
 
-[Read our preprint on arXiv](https://arxiv.org/abs/2407.04557)
 
-<p align="center">
-  <img src="assets/scigen_logo.png" width="250">
-</p>
+## What is this tutorial?
 
-<p align="center">
-  <img src="assets/figure1.png" width="600">
-</p>
+This tutorial teaches you how to **generate new crystal structures** using diffusion models — from foundational concepts to hands-on generation and evaluation. You will:
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/tutorial_colab.ipynb)
+1. Understand how crystal structures are represented for machine learning
+2. Train a diffusion model (DDPM) on MNIST to build intuition
+3. See how diffusion extends to periodic crystal structures (DiffCSP)
+4. Generate materials with targeted lattice geometries using **SCIGEN**
+5. Evaluate generated structures with machine-learning interatomic potentials (CHGNet)
 
-## Table of Contents
-- [APS Tutorial Notebooks](#aps-tutorial-notebooks)
-- [Quick Start (Standalone)](#colab-tutorial)
-- [Dependencies](#dependencies)
-- [Config Setting](#config-setting)
-- [Training](#training)
-- [Material Generation](#material-generation)
-- [Convert Output to CIF Files](#convert-output-to-cif-files)
-- [Filter Generated Materials by Pre-Screening Filters](#filter-the-generated-materials-by-pre-screening-filters)
-- [Make Movies of Material Generation Trajectories](#make-movies-of-material-generation-trajectories)
-- [Create Your Own Structural Constraint](#create-your-own-structural-constraint)
-- [References](#references)
+Everything runs in **Google Colab** — no local setup required.
 
----
+### Background: SCIGEN
 
-## APS Tutorial Notebooks
-
-A series of 6 notebooks for the APS Tutorial **T4: Generative AI for Physics — From Models to Materials**. Work through them in order, or jump to any topic:
-
-| # | Topic | Colab Link |
-|---|-------|------------|
-| 00 | **Setup** — GPU, dependencies, model download | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/00_setup.ipynb) |
-| 01 | **Crystal Structures & Materials Data** — pymatgen, visualization, MP-20 dataset, tight-binding | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/01_crystal_structures.ipynb) |
-| 02 | **Generative AI Concepts** — diffusion models for physicists | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/02_generative_concepts.ipynb) |
-| 03 | **Diffusion for Materials** — crystal diffusion fundamentals, noise & denoising | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/03_diffusion_materials.ipynb) |
-| 04 | **SCIGEN Generation** — constrained crystal generation | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/04_scigen_generation.ipynb) |
-| 05 | **MLIP Evaluation** — CHGNet for structure screening, phonons, E_hull | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/05_mlip_evaluation.ipynb) |
-
-> **Start with Notebook 00** to install everything, then proceed in order. Each notebook builds on the previous ones, using kagome-lattice materials as a running example.
-
----
-
-## Colab Tutorial
-
-Standalone quick-start notebook — run SCIGEN directly in your browser with no local setup:
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/tutorial_colab.ipynb)
-
-This notebook walks through loading a pretrained model, generating crystal structures with structural constraints (kagome, honeycomb, triangular, etc.), and exporting the results as CIF files.
-
----
-
-## Dependencies
-
-### Version-dependent libraries
-```bash
-python==3.9.20   
-torch==2.0.1+cu118   
-torch-geometric==2.3.0   
-pytorch_lightning==1.3.8   
-pymatgen==2023.9.25   
-hydra-core==1.1.0
-hydra-joblib-launcher==1.1.5
-matminer==0.7.3
-torchmetrics==0.7.3
-```
-
-### Other libraries    
-```bash
-pandas
-smact
-wandb
-imageio
-python-dotenv
-p-tqdm
-pytest
-einops
-pyxtal
-...
-```
-
----
-
-## Config Setting   
-Set the configuration files:
-Duplicate `.env.template` file and rename it as `.env`. Modify the following environment variables in .env.   
-`PROJECT_ROOT`: path to the folder that contains this repo.   
-`HYDRA_JOBS`: path to a folder to store hydra outputs.   
-`WANDB`: path to a folder to store wandb outputs.   
-
-```bash
-PROJECT_ROOT = "/home/user/SCIGEN"
-HYDRA_JOBS = "/home/user/SCIGEN/hydra"
-WANDB = "/home/user/SCIGEN/wandb"
-
-```
-
----
-
-## Training
-
-```bash
-python scigen/run.py data=mp_20 model=diffusion_w_type expname=<expname>
-```
-- `exp_name`: The model name.  
-- The trained model is saved in `HYDRA_JOBS/singlerun/yyyy-mm-dd/<expname>/`.
-
----
-
-## Material Generation
-Run the following to generate structures:
-```bash
-python gen_mul.py
-```
-### Configurations for material generation
-Make a copy of the `config_scigen.template.py` file and rename it to `config_scigen.py`.
-1. Use the pre-trained model:
-   - Download the pre-trained model files:
-```bash
-wget https://figshare.com/ndownloader/articles/27778134/versions/1; unzip 1
-```
-   - Place the zip folder in the home directory (`PROJECT_ROOT`) and unzip it.
-Edit `config_scigen.py` like:
-```
-home_dir = '/path/to/SCIGEN'
-hydra_dir = home_dir
-job_dir = 'models/mp_20'
-```
-
-2. Use the model you trained:
-   - Set the configuration to specify the path to your model in hydra.
-Edit `config_scigen.py` like:
-```
-home_dir = '/path/to/SCIGEN'
-hydra_dir = 'path/to/HYDRA_JOBS/singlerun'
-job_dir = 'yyyy-mm-dd/<expname>'
-```
-
-### Configuration
-
-| Parameter              | Description                                                                                 | Default Value                           |
-|------------------------|---------------------------------------------------------------------------------------------|-----------------------------------------|
-| `batch_size`           | Number of materials to generate per batch.                                                 | `10`                                    |
-| `num_batches_to_samples` | Number of batches to sample during generation.                                             | `20`                                    |
-| `num_materials`        | Total number of materials to generate (`batch_size * num_batches_to_samples`).              | `batch_size * num_batches_to_samples`   |
-| `save_traj_idx`        | Indices for which the generation trajectory will be saved.                                  | `[]` (We do not save the trajectory.)  |
-| `num_run`              | Number of independent runs to perform.                                                     | `1`                                     |
-| `idx_start`            | Starting index for labeling generated materials.                                            | `0`                                     |
-| `header`               | Prefix for labeling the generated materials.                                                | `'sc'`                                  |
-| `sc_list`              | List of structural constraints (e.g., triangular lattice).                                  | `['kag']`                               |
-| `atom_list`            | Atomic species to include in the generated materials.                                       | `['Mn', 'Fe', 'Co', 'Ni', 'Ru', 'Nd', 'Gd', 'Tb', 'Dy', 'Yb']` |
-| `c_scale`              | Scaling factor for the c-axis; For example, `1.0` gives the same lengths for lattice vector `L1` and `L2`. `None` means no constraint.                                  | `None`                                  |
-| `c_vert`               | Whether to constrain the c-axis to be vertical.                                             | `False`                                 |
-| `frac_z`               | z-Fractional coordinate of the 2D geometric pattern, as a float in [0, 1). If `None`, return random frac_z value.                                             | `None`                                 |
-| `save_cif`         | Whether to save the generated materials as CIF files.                                       | `False`                                  |
-
-### Structural Constraints
-Select from the following lattice types: 
-- **Triangular (tri)**, **Honeycomb (hon)**, **Kagome (kag)**, **Square (square)**, **Elongated (elt)**, **Snub square (sns)**, **Truncated square (tsq)**, **Small rhombitrihexagonal (srt)**, **Snub hexagonal (snh)**, **Truncated hexagonal (trh)**, **Lieb (lieb)**, **Vanilla model without structural constraint (van)**
+**SCIGEN** (Structural Constraint Integration in GENerative model) is a diffusion-based framework that generates crystal structures with targeted geometric patterns — kagome, honeycomb, triangular, and more. Published in [*Nature Materials* (2025)](https://doi.org/10.1038/s41563-025-02355-y).
 
 <p align="center">
-  <img src="assets/SI_arch_lattice_unit_bk.png" width="500">
+  <img src="assets/figure1.png" width="650">
 </p>
 
-*For each structural constraint, the minimum/maximum number of atoms per unit cell can be specified in `sc_natm_range.py`.    
+The published pipeline generated **10 million candidate structures**, screened to **24,743 DFT-validated materials** — including novel kagome magnets, honeycomb topological candidates, and frustrated lattice compounds.
 
 ---
 
-## Convert Output to CIF Files
+## Tutorial Outline
 
-Convert generated outputs into CIF files:
-```bash
-python script/save_cif.py --label <out_name>
-```
-- `out_name`: For example, `sc_kag200_000` indicates 200 materials generated with Kagome lattice constraints, indexed as `000`. See the output file from `gen_mul.py`.
-- If `out_name` is set in `config_scigen.py`, you do not need to set `--label`.
+| # | Notebook | What you'll learn | Time |
+|---|----------|-------------------|------|
+| 00 | [**Setup**](notebooks/00_setup.ipynb) | GPU check, install dependencies, download pretrained model | ~5 min |
+| 01 | [**Crystal Structures**](notebooks/01_crystal_structures.ipynb) | pymatgen, (L,X,A) representation, MP-20 dataset, kagome lattice, tight-binding bands | ~15 min |
+| 02 | [**Generative Concepts**](notebooks/02_generative_concepts.ipynb) | DDPM theory, train on MNIST, classifier-free guidance, connection to materials | ~15 min |
+| 03 | [**Diffusion for Materials**](notebooks/03_diffusion_materials.ipynb) | DiffCSP, wrapped normal for periodic coordinates, forward/reverse process visualization | ~15 min |
+| 04 | [**SCIGEN Generation**](notebooks/04_scigen_generation.ipynb) | Constrained generation (kagome, honeycomb, ...), trajectory visualization, XRD, distribution analysis | ~20 min |
+| 05 | [**MLIP Evaluation**](notebooks/05_mlip_evaluation.ipynb) | CHGNet predictions, structure relaxation, phonons, convex hull, screening pipeline | ~15 min |
 
----
+**Total: ~90 minutes** (with hands-on Colab work)
 
-## Filter the Generated Materials by Pre-Screening Filters
+### Open in Colab
 
-Pre-screen the generated materials based on stability, and save the CIF files of the screened materials.
-```bash
-python script/eval_screen.py --label <out_name>
-```
+| Notebook | Link |
+|----------|------|
+| 00 Setup | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/00_setup.ipynb) |
+| 01 Crystal Structures | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/01_crystal_structures.ipynb) |
+| 02 Generative Concepts | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/02_generative_concepts.ipynb) |
+| 03 Diffusion for Materials | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/03_diffusion_materials.ipynb) |
+| 04 SCIGEN Generation | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/04_scigen_generation.ipynb) |
+| 05 MLIP Evaluation | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/05_mlip_evaluation.ipynb) |
+| Standalone Quick-Start | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/RyotaroOKabe/APS_demo_SCIGEN/blob/main/notebooks/tutorial_colab.ipynb) |
 
-Or process multiple outputs by running:
-```bash
-python screen_mul.py
-```
-
-Pre-screen the generated materials based on stability, and then save only magnetic materials.
-```bash
-python script/eval_screen.py --label <out_name> --screen_mag True
-```
-
----
-
-## Make Movies of Material Generation Trajectories
-Visualize the trajectory of material generation.
-```bash
-python script/traj_movie.py --label <out_name> --idx_list <list_of_indices> --supercell <nx ny nz>
-```
-
-### Parameters:
-- **`out_name`**: The name of the output folder containing the generated materials.  
-  For example, `sc_kag200_000` refers to 200 materials generated with Kagome lattice constraints, indexed as `000`.  
-  - If `out_name` is already set in `config_scigen.py`, you do not need to specify `--label`.  
-- **`idx_list`**: A space-separated list of material indices for which trajectory movies will be generated (e.g., `1 3 5`).  
-- **`supercell`**: The size of the supercell used for visualization, formatted as `nx ny nz`. The default is `1 1 1`.
-
-### Example Command:
-Generate trajectory movies for materials indexed as 00001, 00003, and 00005 from `sc_kag200_000`, with a `2x2x1` supercell:
-```bash
-python script/traj_movie.py --label sc_kag200_000 --idx_list 1 3 5 --supercell 2 2 1
-```
-
-### Notes:
-- Ensure that trajectory data (`traj`) was saved during material generation with `gen_mul.py` for the selected materials.
-- The generated movies are stored in the folder: `figures/job_dir/out_name/index/`.
-
+> **Start with Notebook 00**, then work through in order. Each notebook builds on the previous ones, using **kagome-lattice materials** as a running example.
 
 ---
 
-## Create Your Own Structural Constraint
-
-SCIGEN allows you to define custom structural constraints for material generation. Follow these steps to implement and integrate your own constraints into the framework.
-
-### Step 1: Create a New Class
-1. Go to `script/sc_utils.py`.
-2. Duplicate the `SC_Template` class and rename it, e.g., `SC_YourOwn`.
-
-### Step 2: Customize the Structural Constraint Class
-Edit the following properties to define your custom structural constraint:
-
-- **`a_scale`, `b_scale`**: Set the scaling of lattice vector lengths relative to the nearest neighbor distance.
-- **`gamma`**: Define the lattice angle (\(\gamma\)).
-- **`frac_known`**: Specify the fractional coordinates of the constrained atoms.
-
-**Example:**
-```python
-class SC_YourOwn(SC_Base):
-    def __init__(self, bond_len, num_atom, type_known, frac_z, c_vec_cons, reduced_mask, device):
-        super().__init__(bond_len, num_atom, type_known, frac_z, c_vec_cons, reduced_mask, device)
-        # Lattice 
-        self.a_scale, self.b_scale = 2.0, 2.0  #TODO: Set scaling with respect to self.bond_len.
-        self.cell = self.get_cell(gamma=90)   #TODO: Define lattice matrix angle (\gamma).
-        # Atom Coordinates
-        self.frac_known = torch.tensor([[0.0, 0.0, self.frac_z],
-                                        [0.5, 0.0, self.frac_z]])  #TODO: Fractional coordinates.
-        self.num_known = self.frac_known.shape[0]
-```
-
-### Step 3: Add the Class to the Constraint Dictionary
-Add your new class to `sc_dict` in `script/sc_utils.py` with a short name.
-
-**Example:**
-```python
-sc_dict = {'tri': SC_Triangular, 'hon': SC_Honeycomb, 'kag': SC_Kagome, 
-           ..., 'your': SC_YourOwn}
-```
-
-### Step 4: (Optional) Specify Atom Count Distribution
-Define the probability distribution of the number of atoms per unit cell for your structural constraint in `natm_dist_sc` in `script/sc_natm.py`. If omitted, the default distribution will be used.
-
-**Example:**
-```python
-natm_dist_sc = {
-    ...
-    'your': [0.0, 0.0021, 0.0211, 0.0198, 0.1527, ...],  # Probability for atom counts, starting from 0 atom/cel.
-}
-```
-
-### Step 5: Define Atom Count Range
-Set the minimum and maximum number of atoms per unit cell for your structural constraint in `sc_natm_range` in `gen_mul.py`.
-
-**Example:**
-```python
-sc_natm_range = {   
-    ...
-    'your': [1, 20],   # Minimum: 1, Maximum: 20
-}
-```
-
-### Step 6: Test Your Constraint
-- Run `python gen_mul.py` with `sc_list=['your']` to test material generation using your custom constraint.
-
-
-
-
-## References
-
-### Publication
-- **Structural constraint integration in a generative model for the discovery of quantum materials**  
-  *Nature Materials* (2025)  
-  [Read the full paper](https://doi.org/10.1038/s41563-025-02355-y)
-
-### MIT News
-- **New tool makes generative AI models more likely to create breakthrough materials**  
-  [Read the MIT News article](https://news.mit.edu/2025/new-tool-makes-generative-ai-models-likely-create-breakthrough-materials-0922)
-
-
-If you find our code or dataset useful, please cite the following paper:   
-
-```bibtex
-@article{okabe2025structural,
-  title={Structural constraint integration in a generative model for the discovery of quantum materials},
-  author={Okabe, Ryotaro and Cheng, Mouyang and Chotrattanapituk, Abhijatmedhi and Mandal, Manasi and Mak, Kiran and C{\'o}rdova Carrizales, Denisse and Hung, Nguyen Tuan and Fu, Xiang and Han, Bowen and Wang, Yao and others},
-  journal={Nature Materials},
-  pages={1--8},
-  year={2025},
-  publisher={Nature Publishing Group UK London}
-}
+## The Big Picture
 
 ```
+Crystal structures (L, X, A)          NB 01
+        |
+        v
+Diffusion models (DDPM)               NB 02
+        |
+        v
+Crystal diffusion (DiffCSP)           NB 03
+   - Wrapped normal for periodic coords
+   - Predictor-corrector sampling
+        |
+        v
+Constrained generation (SCIGEN)       NB 04  <-- capstone
+   - Guarantee kagome/honeycomb sites
+   - Model generates complementary atoms
+        |
+        v
+MLIP evaluation (CHGNet)              NB 05
+   - Energy, forces, phonons
+   - Convex hull stability screening
+        |
+        v
+Candidates for DFT & synthesis
+```
 
+**Key tools used in this tutorial:**
+- [DiffCSP](https://github.com/jiaor17/DiffCSP) — Jiao *et al.*, *NeurIPS* (2023)
+- [CHGNet](https://github.com/CederGroupHub/chgnet) — Deng *et al.*, *Nature Machine Intelligence* (2023)
+- [pymatgen](https://github.com/materialsproject/pymatgen) — Ong *et al.*, *Comput. Mater. Sci.* (2013)
+- [DDPM on MNIST](https://github.com/TeaPearce/Conditional_Diffusion_MNIST) — TeaPearce (MIT License)
 
 ### Dataset
-We compile a comprehensive database of AL materials generated by SCIGEN. The dataset provides the folders of all generated materials (10.06 million), the materials that survived after the four-stage pre-screening process (1.01 million materials), and DFT-relaxed structures (24,743). The folder with DFT calculation contains materials structures before and after relaxation. The Supplementary dataset is available in the Figshare repository: 
+
+SCIGEN-generated materials (10.06M candidates, 24,743 DFT-validated) are available on Figshare:
 [https://doi.org/10.6084/m9.figshare.c.7283062](https://doi.org/10.6084/m9.figshare.c.7283062)
 
-### Note to Users
-The SCIGEN source code is continuously being improved for better readability, ease of use, and broader applicability. If you encounter any issues or have suggestions for enhancement, please don't hesitate to open an issue in this GitHub repository. You can also directly reach out to the main author, Ryotaro Okabe, (rokabe [at] mit [dot] edu). Your feedback is greatly appreciated!
+---
+
+## Contact
+
+Questions or issues? Open an issue on this repository or contact Ryotaro Okabe (rokabe [at] mit [dot] edu).
