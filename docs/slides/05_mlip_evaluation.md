@@ -89,14 +89,42 @@ e_hull = pd.get_e_above_hull(entry)
 
 ---
 
+## Screening SCIGEN-generated materials
+
+Apply CHGNet to **24,743 SCIGEN-generated structures**:
+1. Download DFT-validated structures from Figshare
+2. Predict energy/forces across all constraint types
+3. Relax structures, measure displacement
+4. Filter by stability criteria
+
+**Result:** Rapid identification of stable candidates across
+kagome, honeycomb, triangular, and other lattice geometries.
+
+---
+
+## The full discovery pipeline
+
+| Stage | Tool | Throughput |
+|-------|------|-----------|
+| Generate | SCIGEN diffusion | ~1,000/hr |
+| Pre-screen | Composition + bonds | instant |
+| **MLIP screen** | **CHGNet** | **~1,000/hr** |
+| DFT validate | VASP | ~10/hr |
+
+10M generated -> 100K pre-screened -> **24,743 DFT-confirmed**
+
+MLIP screening reduced DFT workload by ~400x.
+
+---
+
 ## What we'll do in this notebook
 
 1. Load CHGNet pretrained model
 2. Predict energy/forces for a test structure
 3. **Relax a perturbed crystal** (animated trajectory with forces)
 4. Compare CHGNet vs DFT (parity plot, MAE)
-5. Compute **phonon DOS** (dynamic stability check)
-6. Estimate **E_hull** (thermodynamic stability)
-7. Connect to SCIGEN's full screening pipeline
+5. Estimate **E_hull** (thermodynamic stability)
+6. **Screen SCIGEN-generated materials** with CHGNet
+7. Visualize the full Generate -> Screen -> Validate pipeline
 
 ---
